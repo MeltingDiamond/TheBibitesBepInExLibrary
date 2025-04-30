@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35931.197 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheBibitesBepInExLibrary", "TheBibitesBepInExLibrary\TheBibitesBepInExLibrary.csproj", "{8EE198EB-5F76-4D64-93CB-C9A035DB150C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8EE198EB-5F76-4D64-93CB-C9A035DB150C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EE198EB-5F76-4D64-93CB-C9A035DB150C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EE198EB-5F76-4D64-93CB-C9A035DB150C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EE198EB-5F76-4D64-93CB-C9A035DB150C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CA471D5C-79C1-4E64-8E45-6F01498B075A}
+	EndGlobalSection
+EndGlobal
