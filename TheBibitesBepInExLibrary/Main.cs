@@ -2,6 +2,8 @@
 using HarmonyLib;
 using UIScripts.SettingHandles;
 using System.Reflection;
+using System;
+using System.Collections.Generic;
 
 namespace TheBibitesBepInExLibrary
 {
@@ -11,46 +13,89 @@ namespace TheBibitesBepInExLibrary
 
         private Harmony harmony;
 
-        public enum UIElement // Maybe usefull
+        /// <summary>
+        /// What kind of setting element to add.
+        /// </summary>
+        public enum UIElement
         {
             Toggle,
             Slider,
-            Simulation
         }
 
         /// <summary>
-        /// Adds a UI slider to the choosen location. The locations you can are:
-        /// SimulationOptions,
-        /// CheatOptions,
-        /// GlobalParameters,
-        /// TPSParameters,
-        /// PhysicsParameters,
-        /// VirginBibiteOptions,
-        /// BibiteConstants,
-        /// MaterialParameters
-        /// </summary>
-        public void AddSlider(UIElement Element)
+        /// What type of setting it is.
+        /// <summary>
+        public enum SettingTypes
         {
-            if (harmony != null) return;
+            SimulationOptions,
+            CheatOptions,
+            GlobalParameters,
+            TPSParameters,
+            PhysicsParameters,
+            VirginBibiteOptions,
+            BibiteConstants,
+            MaterialParameters
+        }
 
-            harmony = new Harmony("com.thebibites.dynamicui");
+        /// <summary>
+        /// Info for a setting to be added dynamically.
+        /// </summary>
+        public class SettingDefinition
+        {
+            public UIElement ElementType;
+            public string Label;
+            public float Min;
+            public float Max;
+            public Func<float> Getter;
+            public Action<float> Setter;
+        }
 
-            MethodInfo targetMethod = AccessTools.Method(typeof(MenuDynamicSettingsManager), "Awake");
-            MethodInfo postfixMethod = AccessTools.Method(typeof(DynamicSettingsPatch), "Postfix");
+        // Stores pending settings to add
+        internal static List<SettingDefinition> pendingSettings = new List<SettingDefinition>();
 
-            harmony.Patch(targetMethod, postfix: new HarmonyMethod(postfixMethod));
+        /// <summary>
+        /// Call this to define and schedule a UI element to be added to the settings menu.
+        /// </summary>
+        public void AddSetting(SettingDefinition def, SettingTypes settingType)
+        {
+            if (harmony == null)
+            {
+                harmony = new Harmony("TheBibitesBepInExLibrary");
 
-            Debug.Log("Dynamic UI slider patch applied.");
+                MethodInfo targetMethod = AccessTools.Method(typeof(MenuDynamicSettingsManager), "Awake");
+                MethodInfo postfixMethod = AccessTools.Method(typeof(DynamicSettingsPatch), "Postfix");
+
+                harmony.Patch(targetMethod, postfix: new HarmonyMethod(postfixMethod));
+
+                Debug.Log("DynamicSettingsPatch applied.");
+            }
+
+            pendingSettings.Add(def);
+            Debug.Log($"Queued setting: {def.Label}");
         }
     }
 
-    [HarmonyPatch(typeof(MenuDynamicSettingsManager), "Awake")] // Change this to the actual method where settings are set up
     public static class DynamicSettingsPatch
     {
-        // patches in UI elements in the Dynamic Settings
         public static void Postfix(MenuDynamicSettingsManager __instance)
         {
-            Debug.Log("Patching in UI elements in various settings");
+            Debug.Log("Patching in queued settings...");
+
+            foreach (var def in Main.pendingSettings)
+            {
+                switch (def.ElementType)
+                {
+                    case Main.UIElement.Slider:
+                        var slider = __instance.CreateSlider(def.Label, def.Min, def.Max, def.Getter(), def.Setter);
+                        break;
+
+                    case Main.UIElement.Toggle:
+                        var toggle = __instance.CreateToggle(def.Label, def.Getter() > 0, b => def.Setter(b ? 1 : 0));
+                        break;
+                }
+
+                Debug.Log($"Added {def.ElementType} setting: {def.Label}");
+            }
         }
     }
 }
